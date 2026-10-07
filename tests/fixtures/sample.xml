@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' ?><!--
+Created by Alight Motion (http://alightmotion.com)
+Exported: 2026-10-07 11:03 AM
+5.0.273.1028425 (1028425)
+2d5c0f8 (20 Mei 2026 04.16.19)
+-->
+<scene title="Proyek Baru 198" width="1440" height="1440" exportWidth="1440" exportHeight="1440" precompose="dynamicResolution" bgcolor="#ffd8d8d8" totalTime="2032" fps="30" modifiedTime="1791345816966" amver="1028425" ffver="106" am="com.alightcreative.motion/5.0.273.1028425" amplatform="android" retime="freeze" retimeAdaptFPS="false">
+  <shape id="2999480306" label="Bentuk 1" startTime="0" endTime="2032" fillType="color" mediaFillMode="fill">
+    <transform>
+      <location value="720.000000,720.000000,0.000000" />
+    </transform>
+    <fillColor value="#ffff4444" />
+    <shadow direction="outside">
+      <size value="27.000000" />
+    </shadow>
+    <path d="M 218.0 -357.20703C 218.0 -357.20703, -238.37988 182.1206, -249.50781 294.29297C -260.63574 406.46533, 348.9922 627.79297, 348.9922 627.79297C 348.9922 627.79297, -4.635742 397.91794, -46.507812 285.29297C -88.37988 172.668, 218.0 -357.20703, 218.0 -357.20703L 218.0 -357.20703" />
+  </shape>
+  <shape id="2999480591" label="Bentuk 1 Copy" startTime="0" endTime="2032" fillType="color" mediaFillMode="fill">
+    <transform>
+      <location value="619.387695,780.500000,0.000000" />
+    </transform>
+    <shadow direction="outside">
+      <size value="22.000000" />
+    </shadow>
+    <path d="M 218.0 -357.20703C 218.0 -357.20703, -238.37988 182.1206, -249.50781 294.29297C -260.63574 406.46533, 348.9922 627.79297, 348.9922 627.79297C 348.9922 627.79297, -4.635742 397.91794, -46.507812 285.29297C -88.37988 172.668, 218.0 -357.20703, 218.0 -357.20703L 218.0 -357.20703" />
+  </shape>
+  <shape id="2999480592" label="Bentuk 1 Copy 2" startTime="0" endTime="2032" fillType="color" mediaFillMode="fill">
+    <transform>
+      <location value="483.887695,835.000000,0.000000" />
+    </transform>
+    <shadow direction="outside">
+      <size value="22.000000" />
+    </shadow>
+    <path d="M 218.0 -357.20703C 218.0 -357.20703, -238.37988 182.1206, -249.50781 294.29297C -260.63574 406.46533, 348.9922 627.79297, 348.9922 627.79297C 348.9922 627.79297, -4.635742 397.91794, -46.507812 285.29297C -88.37988 172.668, 218.0 -357.20703, 218.0 -357.20703L 218.0 -357.20703" />
+  </shape>
+  <text id="2999480593" startTime="0" endTime="2032" fillType="color" mediaFillMode="fill" size="18.000000" font="googlefonts?name=Roboto&amp;weight=400" wrapWidth="512" align="left">
+    <transform>
+      <location value="720.000000,720.000000,0.000000" />
+    </transform>
+    <fillColor value="#ff7f7f7f" />
+  </text>
+  <shape id="2999480594" label="Bentuk 2" startTime="0" endTime="2032" fillType="color" mediaFillMode="fill">
+    <transform>
+      <location value="725.333374,986.666626,0.000000" />
+    </transform>
+    <effect id="com.alightcreative.effects.spinblur2" locallyApplied="true">
+      <property name="angle" type="float" value="60.000000" />
+    </effect>
+    <effect id="com.alightcreative.effects.lightglow" locallyApplied="true">
+      <property name="strength" type="float" value="0.250000" />
+      <property name="threshold" type="float" value="0.700000" />
+      <property name="intensity" type="float" value="1.000000" />
+      <property name="color" type="color" value="#ffff5566" />
+      <property name="blend" type="float" value="0.250000" />
+      <property name="halo" type="float" value="0.000000" />
+      <property name="alpha" type="float" value="0.750000" />
+    </effect>
+    <path d="M 470.3545 -298.6455L 12.318359 262.31836L 525.81836 -597.18164L 698.31836 566.31836L 470.3545 -298.6455" />
+  </shape>
+</scene>
