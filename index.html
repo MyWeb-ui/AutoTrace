@@ -1,56 +1,122 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f08">
 <title>Auto Trace — Gambar ke SVG &amp; XML Alight Motion</title>
-<style>
-:root{--bg:#0d1109;--p:#1d2415;--p2:#26301c;--bd:#2a3321;--tx:#98ce7b;--mu:#a5b39a;--ac:#98ce7b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--mu);font:14px system-ui,sans-serif;padding:16px;max-width:960px;margin:auto}
-h1{color:var(--tx);font-size:20px;margin:0 0 4px}small{opacity:.8}
-.card{background:var(--p);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-top:12px}
-#drop{border:2px dashed var(--bd);border-radius:12px;padding:28px;text-align:center;cursor:pointer}#drop.on{border-color:var(--ac)}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-label{display:flex;flex-direction:column;gap:4px;font-size:12px}
-select,input{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px}
-button{background:var(--ac);color:#0d1109;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-button.s{background:var(--p2);color:var(--tx)}button:disabled{opacity:.4;cursor:default}
-#out{background:repeating-conic-gradient(#222 0 25%,#2b2b2b 0 50%) 0 0/16px 16px;border-radius:10px;min-height:120px;display:flex;justify-content:center}
-#out svg{max-width:100%;max-height:60vh;height:auto}#st{margin-top:8px;font-size:12px}.err{color:#ff8a8a}
-</style></head><body>
-<h1>AUTO TRACE</h1><small>Gambar → SVG → XML Alight Motion · semua diproses di perangkat Anda</small>
-<div class="card"><div id="drop">Tarik gambar PNG/JPG/WEBP ke sini atau ketuk untuk memilih</div><input id="f" type="file" accept="image/png,image/jpeg,image/webp" hidden></div>
-<div class="card"><div class="row">
-<label>Mode<select id="mode"><option value="color">Color</option><option value="bw">B&amp;W</option></select></label>
-<label>Jumlah warna (Color)<input id="nc" type="number" min="2" max="32" value="8"></label>
-<label>Buang detail kecil (px)<input id="po" type="number" min="0" max="100" value="8"></label>
-<label>Ukuran scene (sisi terpanjang)<input id="sz" type="number" min="200" max="4000" value="1440"></label>
-<label>Background<input id="bg" type="color" value="#ffffff"></label></div>
-<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button id="go" disabled>Trace</button><button class="s" id="dsvg" disabled>Unduh SVG</button><button class="s" id="dxml" disabled>Unduh XML Alight</button></div><div id="st"></div></div>
-<div class="card"><div id="out"></div></div>
+<meta name="description" content="Ubah gambar menjadi vector SVG dan XML Alight Motion. Hapus background, trace di server, ekspor langsung.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0f08'/%3E%3Cpath d='M7 22c3-10 7-13 11-13s7 4 7 9' fill='none' stroke='%2398ce7b' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='7' cy='22' r='2.6' fill='%2398ce7b'/%3E%3Ccircle cx='25' cy='18' r='2.6' fill='%2398ce7b'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 23c3-11 8-15 13-15s8 5 9 10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="5" cy="23" r="3" fill="currentColor"/><circle cx="27" cy="18" r="3" fill="currentColor"/></svg>
+    <div><h1>Auto Trace</h1><p>Gambar → SVG → XML Alight Motion</p></div>
+  </div>
+  <span class="chip" id="srv" role="status" title="Status mesin trace di server">Server: memeriksa…</span>
+</header>
+
+<main class="layout">
+  <section class="stage card" aria-label="Pratinjau">
+    <div class="tabs" role="tablist" aria-label="Tampilan">
+      <button class="tab" role="tab" id="tab-photo" aria-controls="panel-photo" aria-selected="true">1 · Foto &amp; background</button>
+      <button class="tab" role="tab" id="tab-result" aria-controls="panel-result" aria-selected="false" disabled>2 · Hasil trace</button>
+    </div>
+
+    <div id="panel-photo" role="tabpanel" aria-labelledby="tab-photo">
+      <button type="button" id="drop" class="drop">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="36" height="30" rx="5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="17" cy="20" r="3.2" fill="currentColor"/><path d="M8 35l10-9 7 6 6-5 9 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        <strong>Pilih atau tarik foto ke sini</strong>
+        <span>PNG, JPG, atau WEBP · bisa juga tempel (Ctrl+V)</span>
+      </button>
+
+      <div id="editor" hidden>
+        <div class="canvas-wrap checker" id="cwrap"><canvas id="cv" aria-label="Pratinjau foto setelah background dihapus"></canvas><div id="ring" class="ring" hidden></div></div>
+        <div class="toolbar" role="toolbar" aria-label="Alat background">
+          <button type="button" class="tool" data-tool="pick" aria-pressed="true" title="Ketuk warna latar di foto untuk menghapusnya">Pipet</button>
+          <button type="button" class="tool" data-tool="erase" aria-pressed="false" title="Hapus manual dengan kuas">Hapus</button>
+          <button type="button" class="tool" data-tool="restore" aria-pressed="false" title="Kembalikan bagian yang terhapus">Pulihkan</button>
+          <button type="button" class="tool ghost" id="undo" disabled>Urungkan</button>
+          <button type="button" class="tool ghost" id="resetMask">Reset</button>
+        </div>
+        <label class="fld brush" id="brushFld" hidden><span>Ukuran kuas <output id="o-brush">24</output> px</span><input type="range" id="brush" min="4" max="120" value="24"></label>
+        <p class="hint" id="toolHint">Ketuk warna latar di foto. Bisa berkali-kali untuk latar yang banyak warnanya.</p>
+      </div>
+    </div>
+
+    <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden>
+      <div class="cmp checker" id="cmp"><div class="cmp-under" id="cmpSvg"></div><canvas id="cmpOrig" class="cmp-over"></canvas><div class="cmp-handle" id="cmpHandle"></div></div>
+      <label class="fld cmp-range"><span>Geser untuk membandingkan: <b>Foto</b> ⟷ <b>Trace</b></span><input type="range" id="cmpRange" min="0" max="100" value="50"></label>
+      <div class="stats" id="stats" aria-live="polite"></div>
+      <p class="warn" id="warn" hidden></p>
+    </div>
+  </section>
+
+  <aside class="controls" aria-label="Pengaturan">
+    <div class="card file" id="fileRow">
+      <div class="thumb checker" id="thumb" aria-hidden="true"></div>
+      <div class="file-meta"><strong id="fname">Belum ada foto</strong><span id="fmeta">Pilih foto untuk memulai</span></div>
+      <button type="button" class="btn small" id="change">Pilih foto</button>
+    </div>
+
+    <details class="card" open>
+      <summary>Background</summary>
+      <label class="check"><input type="checkbox" id="bgOn"> <span>Hapus background</span></label>
+      <div id="seeds" class="seeds" aria-live="polite"></div>
+      <div class="row2"><button type="button" class="btn small ghost" id="autoSeed">Deteksi dari tepi foto</button><button type="button" class="btn small ghost" id="clearSeeds">Lepas semua warna</button></div>
+      <label class="fld"><span>Toleransi warna <output id="o-tol">22</output></span><input type="range" id="tol" min="2" max="70" value="22"></label>
+      <label class="fld"><span>Rapikan tepi (px) <output id="o-shrink">1</output></span><input type="range" id="shrink" min="0" max="8" value="1"></label>
+      <label class="check"><input type="checkbox" id="edgeOnly" checked> <span>Hanya yang tersambung ke tepi foto</span></label>
+      <label class="check" id="alphaRow" hidden><input type="checkbox" id="useAlpha" checked> <span>Pakai transparansi bawaan PNG</span></label>
+    </details>
+
+    <details class="card" open>
+      <summary>Trace</summary>
+      <label class="fld"><span>Jenis gambar</span>
+        <select id="preset"><option value="anime">Anime / ilustrasi</option><option value="logo">Logo / flat</option><option value="photo">Foto</option><option value="bw">Hitam-putih</option><option value="custom" hidden>Kustom</option></select></label>
+      <div id="colorOnly">
+        <label class="fld"><span>Jumlah warna <output id="o-colors">14</output></span><input type="range" id="colors" min="2" max="32" value="14"></label>
+      </div>
+      <div id="bwOnly" hidden>
+        <label class="fld"><span>Isi bentuk</span><select id="bwFill"><option value="dark">Bagian gelap</option><option value="light">Bagian terang</option><option value="both">Keduanya</option></select></label>
+        <label class="check"><input type="checkbox" id="bwAuto" checked> <span>Ambang otomatis</span></label>
+        <label class="fld"><span>Ambang <output id="o-bwThr">128</output></span><input type="range" id="bwThr" min="10" max="245" value="128" disabled></label>
+        <label class="fld"><span>Warna tinta</span><input type="color" id="ink" value="#000000"></label>
+      </div>
+      <label class="fld"><span>Buang bercak kecil (px²) <output id="o-minArea">16</output></span><input type="range" id="minArea" min="2" max="150" value="16"></label>
+      <label class="fld"><span>Buang garis tipis (px) <output id="o-minThickness">1.5</output></span><input type="range" id="minThickness" min="0" max="4" step="0.1" value="1.5"></label>
+      <label class="fld"><span>Kehalusan kontur <output id="o-smooth">1.8</output></span><input type="range" id="smooth" min="0.8" max="4" step="0.1" value="1.8"></label>
+      <label class="fld"><span>Maksimum layer <output id="o-maxShapes">160</output></span><input type="range" id="maxShapes" min="10" max="400" step="10" value="160"></label>
+      <label class="check"><input type="checkbox" id="holes" checked> <span>Potong lubang transparan (bentuk berlubang)</span></label>
+      <label class="fld"><span>Mesin</span><select id="engine"><option value="auto">Otomatis (server, cadangan lokal)</option><option value="server">Server saja</option><option value="local">Lokal di perangkat</option></select></label>
+    </details>
+
+    <details class="card">
+      <summary>Alight Motion</summary>
+      <label class="fld"><span>Ukuran scene (sisi terpanjang, px)</span><input type="number" id="sceneSize" min="200" max="4000" value="1440" inputmode="numeric"></label>
+      <label class="fld"><span>Warna latar scene</span><input type="color" id="sceneBg" value="#d8d8d8"></label>
+      <p class="hint">Layer ditumpuk dari bawah ke atas. Shape berlubang memakai satu path dengan sub-path terbalik.</p>
+    </details>
+
+    <div class="actions">
+      <div id="status" class="status" role="status" aria-live="polite">Pilih foto untuk memulai.</div>
+      <div class="progress" id="progress" hidden><i id="bar"></i></div>
+      <button type="button" class="btn primary" id="go" disabled>Trace sekarang</button>
+      <div class="row2">
+        <button type="button" class="btn" id="dsvg" disabled>Unduh SVG</button>
+        <button type="button" class="btn" id="dxml" disabled>Unduh XML Alight</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<input type="file" id="f" accept="image/png,image/jpeg,image/webp" hidden>
+
+<script src="lib/engine.js"></script>
 <script src="src/svg2am.js"></script>
-<script>
-const $=i=>document.getElementById(i),CDN='https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js';
-const load=u=>new Promise((r,j)=>{const s=document.createElement('script');s.src=u;s.onload=r;s.onerror=j;document.head.appendChild(s)});
-const lib=load('lib/imagetracer_v1.2.6.js').catch(()=>load(CDN));
-let img,name='Auto Trace',svgStr='',xmlStr='';
-const msg=(t,e)=>{$('st').className=e?'err':'';$('st').textContent=t};
-function take(file){if(!file||!/^image\/(png|jpeg|webp)$/.test(file.type))return msg('Format harus PNG, JPG, atau WEBP.',1);
- name=file.name.replace(/\.[^.]+$/,'');const im=new Image();im.onload=()=>{img=im;$('go').disabled=false;msg(im.naturalWidth+'×'+im.naturalHeight+' px siap di-trace.')};im.onerror=()=>msg('Gambar gagal dibaca.',1);im.src=URL.createObjectURL(file)}
-$('drop').onclick=()=>$('f').click();$('f').onchange=e=>take(e.target.files[0]);
-$('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('on')};$('drop').ondragleave=()=>$('drop').classList.remove('on');
-$('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('on');take(e.dataTransfer.files[0])};
-$('go').onclick=async()=>{try{await lib}catch(e){return msg('ImageTracer gagal dimuat (cek internet atau taruh file di lib/).',1)}
- $('go').disabled=true;msg('Memproses…');await new Promise(r=>setTimeout(r,30));
- try{const bw=$('mode').value==='bw',k=Math.min(1,1024/Math.max(img.naturalWidth,img.naturalHeight));
-  const cw=Math.round(img.naturalWidth*k),ch=Math.round(img.naturalHeight*k),c=document.createElement('canvas');c.width=cw;c.height=ch;
-  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,cw,ch);
-  const o={numberofcolors:bw?2:+$('nc').value,colorsampling:2,pathomit:+$('po').value,ltres:1,qtres:1,strokewidth:0,roundcoords:2,blurradius:0,colorquantcycles:3};
-  if(bw)o.pal=[{r:0,g:0,b:0,a:255},{r:255,g:255,b:255,a:255}];
-  svgStr=ImageTracer.imagedataToSVG(x.getImageData(0,0,cw,ch),o);
-  const doc=new DOMParser().parseFromString(svgStr,'image/svg+xml'),shapes=[];
-  doc.querySelectorAll('path').forEach(p=>{const op=parseFloat(p.getAttribute('opacity')||'1'),f=p.getAttribute('fill')||'';
-   const m=f.match(/\d+/g)||[0,0,0];if(op===0||(bw&&(+m[0]+ +m[1]+ +m[2])/3>127))return;shapes.push({fill:f,opacity:op,d:p.getAttribute('d')})});
-  const s=+$('sz').value/Math.max(cw,ch),W=Math.round(cw*s),H=Math.round(ch*s),h=$('bg').value;
-  xmlStr=Svg2Am.buildScene({title:name,width:W,height:H,scale:s,bg:'#ff'+h.slice(1),shapes:shapes.map((q,i)=>({...q,label:'Trace '+(i+1)}))});
-  $('out').innerHTML=svgStr;$('dsvg').disabled=$('dxml').disabled=false;msg(shapes.length+' shape · scene '+W+'×'+H+' · urutan layer: bawah → atas.')}
- catch(e){msg('Gagal: '+e.message,1)}$('go').disabled=false};
-const dl=(t,n,m)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;a.click()};
-$('dsvg').onclick=()=>dl(svgStr,name+'.svg','image/svg+xml');$('dxml').onclick=()=>dl(xmlStr,name+'.xml','application/xml');
-</script></body></html>
+<script src="assets/app.js"></script>
+</body>
+</html>

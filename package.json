@@ -1,0 +1,8 @@
+{
+  "name": "auto-trace",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Gambar → SVG → XML Alight Motion. Mesin trace tanpa dependensi, API di Vercel.",
+  "scripts": { "start": "node dev-server.js", "test": "node tests/run-all.js" },
+  "engines": { "node": ">=18" }
+}
